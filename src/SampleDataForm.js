@@ -7,7 +7,7 @@ class SampleDataForm extends Component {
     constructor() {
 
         super();
-        this.state = {};
+        this.state = { name: "", thoughts: "" };
 
     }
 
