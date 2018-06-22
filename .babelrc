@@ -1,15 +1,25 @@
 {
 
     "presets": [
-        
-        "env",
+
+        [ "env", {
+
+            "targets": {
+
+                "browsers": [ "last 2 major versions", "not dead" ]
+
+            }
+
+        } ],
         "react"
 
     ],
     "plugins": [
-        
-        "transform-object-rest-spread"
-    
+
+        "transform-object-rest-spread",
+        "transform-runtime",
+        "transform-async-to-generator"
+
     ]
 
 }

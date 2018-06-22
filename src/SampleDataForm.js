@@ -7,33 +7,41 @@ class SampleDataForm extends Component {
     constructor() {
 
         super();
-        this.state = { name: "", thoughts: "" };
+        this.state = { data: { name: "", thoughts: "" } };
 
     }
 
     handleSubmit( e ) {
 
+        const { onSave } = this.props;
+        if ( !onSave ) return;
         e.preventDefault();
+        onSave( this.state.data );
 
     }
 
     handleChange( e, prop ) {
 
+        const { data } = this.state;
         const value = e.target.value;
-        this.setState( { [ prop ]: value } );
+        this.setState( {
+
+            data: { ...data, [ prop ]: value }
+
+        } );
 
     }
 
     render() {
 
+        const { data } = this.state;
         return <form className="sample-data-form" onSubmit={e => this.handleSubmit( e )}>
-
 
             <label>
 
                 <span className="label-text">Name</span>
                 <input name="name"
-                    value={this.state.name}
+                    value={data.name}
                     onChange={e => this.handleChange( e, "name" )}
                     placeholder="Enter your name..." />
 
@@ -42,7 +50,7 @@ class SampleDataForm extends Component {
 
                 <span className="label-text">Thoughts</span>
                 <textarea name="thoughts"
-                    value={this.state.thoughts}
+                    value={data.thoughts}
                     onChange={e => this.handleChange( e, "thoughts" )}
                     placeholder="Enter your thoughts here..."></textarea>
 

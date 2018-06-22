@@ -1,38 +1,14 @@
-import React, { Component } from "react";
+import React from "react";
 
-class StorageStatus extends Component {
+const StorageStatus = ( { context = {} } ) => <article className="storage-status">
 
-    constructor() {
+    <span>Storage:</span>
+    <span className={`connection ${context.connected ? "" : "dis"}connected` }>
 
-        super();
-        this.state = {
+        {context.connected ? "Connected" : "Not connected"}
 
-            connected: true
+    </span>
 
-        };
-
-    }
-
-    connectedStatus() {
-
-        return <span className={`connection ${this.state.connected ? "" : "dis"}connected` }>
-
-            {this.state.connected ? "Connected" : "Not connected"}
-
-        </span>;
-
-    }
-
-    render() {
-
-        return <div className="storage-status">
-
-            Save status
-            {this.connectedStatus()}
-
-        </div>;
-
-    }
-}
+</article>;
 
 export { StorageStatus };

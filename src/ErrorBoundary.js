@@ -15,17 +15,6 @@ class ErrorBoundary extends Component {
 
     }
 
-    renderInfo() {
-
-        if ( !this.state.info ) return;
-        return <pre>
-
-            {JSON.stringify( this.state.info, null, 3 )}
-
-        </pre>;
-
-    }
-
     render() {
 
         if ( !this.state.error ) {
@@ -33,14 +22,16 @@ class ErrorBoundary extends Component {
             return this.props.children;
 
         }
+        console.log( this.state.error, this.state.info );
         return <section className="error">
 
+            <h3>An error has occurred: {this.state.error.message}</h3>
             <pre>
 
-                {JSON.stringify( this.state.error, null, 3 )}
+                {this.state.error.stack}
 
             </pre>
-            {this.renderInfo()}
+            <p>You may reload to try again: <button onClick={() => window.location.reload()}>Reload</button></p>
 
         </section>;
 

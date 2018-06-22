@@ -5,18 +5,52 @@ import "./live-example.scss";
 
 import SampleDataForm from "./SampleDataForm";
 import ErrorBoundary from "./ErrorBoundary";
-import { StorageStatus } from "./";
+import { StorageStatus, Saving } from "./";
 
-const LiveExample = () => <article className="live-example">
+class LiveExample extends Component {
 
-    <ErrorBoundary>
+    constructor() {
 
-        <StorageStatus />
-        <SampleDataForm />
+        super();
+        this.state = {
 
-    </ErrorBoundary>
+            saveNeeded: null,
+            saveContext: null
 
-</article>;
+        };
+
+    }
+
+    handleSave( saveNeeded ) {
+
+        this.setState( { saveNeeded } );
+
+    }
+
+    handleContextChange( saveContext ) {
+
+        this.setState( { saveContext } );
+
+    }
+    render() {
+
+        const { saveNeeded, saveContext } = this.state;
+        return <article className="live-example">
+
+            <ErrorBoundary>
+
+                <StorageStatus saveContext={saveContext} />
+                {saveNeeded && <Saving data={saveNeeded} context={saveContext} onContextChange={context => this.handleContextChange( context )} />}
+                <SampleDataForm onSave={data => this.handleSave( data )} />
+
+            </ErrorBoundary>
+
+        </article>;
+
+    }
+
+}
+
 
 
 export const renderLiveExample = selector =>
