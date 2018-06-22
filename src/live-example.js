@@ -4,22 +4,20 @@ import { render } from "react-dom";
 import "./live-example.scss";
 
 import SampleDataForm from "./SampleDataForm";
+import ErrorBoundary from "./ErrorBoundary";
+import { StorageStatus } from "./";
 
-import { X } from "./";
+const LiveExample = () => <article className="live-example">
 
-class LiveExample extends Component {
+    <ErrorBoundary>
 
-    render() {
+        <StorageStatus />
+        <SampleDataForm />
 
-        return <article className="live-example">
+    </ErrorBoundary>
 
-            <SampleDataForm />
+</article>;
 
-        </article>;
-
-    }
-
-}
 
 export const renderLiveExample = selector =>
 

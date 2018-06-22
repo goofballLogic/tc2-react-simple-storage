@@ -3,12 +3,42 @@ article.live-example {
     --base-color: #555;
     --base-font-size: 10pt;
 
+    &, input, textarea, select {
+
+        font-size: var(--base-font-size);
+        color: var(--base-color);
+
+    }
+
     * {
 
         box-sizing: border-box;
         font-family: Arial;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+
+    }
+
+    .storage-status {
+
+        padding: 10px;
+
+        .connection {
+
+            border: solid 1px silver;
+            color: silver;
+            margin: 0 10px;
+            padding: 5px 10px;
+
+            &.connected {
+
+                color: green;
+                background-color: #EFE;
+                border-color: green;
+
+            }
+
+        }
 
     }
 
