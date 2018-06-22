@@ -1,0 +1,36 @@
+{
+  "name": "workspace",
+  "version": "0.0.1",
+  "description": "Simple data storage with react components",
+  "main": "dist/bundle.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack-dev-server --config webpack.config.live-example",
+    "build": "webpack; webpack --config webpack.config.live-example"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/goofballLogic/tc2-react-simple-storage.git"
+  },
+  "author": "tinycode2",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/goofballLogic/tc2-react-simple-storage/issues"
+  },
+  "homepage": "https://github.com/goofballLogic/tc2-react-simple-storage#readme",
+  "devDependencies": {
+    "babel-loader": "^7.1.4",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "webpack": "^4.12.0",
+    "webpack-bundle-analyzer": "^2.13.1",
+    "webpack-cli": "^3.0.8",
+    "webpack-dev-server": "^3.1.4"
+  }
+}
