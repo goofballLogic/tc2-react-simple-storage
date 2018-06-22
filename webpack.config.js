@@ -15,24 +15,24 @@ module.exports = {
     module: {
 
         rules: [
-            
+
             {
-            
+
                 test: /\.js$/,
                 exclude: /node_modules/,
                 loader: "babel-loader"
-          
+
             },
             {
-                
-                test: /\.svg$/,
+
+                test: /\.scss$/,
                 exclude: /node_modules/,
-                loader: "svg-react-loader"
-                
+                loader: 'css-loader'
+
             }
-        
+
         ]
-      
+
     },
     externals: [
 
@@ -41,9 +41,9 @@ module.exports = {
 
     ],
     plugins: [
-    
+
         new BundleAnalyzerPlugin( { analyzerMode: "static" } )
-        
+
     ]
 
 };

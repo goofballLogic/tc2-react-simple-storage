@@ -12,35 +12,42 @@ module.exports = {
 
     },
     devServer: {
-        
+
         contentBase: "./docs",
         compress: true,
         port: process.env.PORT || 5002,
         host: "0.0.0.0",
         disableHostCheck: true
-        
+
     },
     module: {
 
         rules: [
-            
+
             {
-            
+
                 test: /\.js$/,
                 exclude: /node_modules/,
                 loader: "babel-loader"
-          
+
             },
             {
-                
+
                 test: /\.svg$/,
                 exclude: /node_modules/,
                 loader: "svg-react-loader"
-                
+
+            },
+            {
+
+                test: /\.scss/,
+                exclude: /node_modules/,
+                loader: [ "style-loader", "css-loader", "sass-loader" ]
+
             }
-        
+
         ]
-      
+
     }
 
 };

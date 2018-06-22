@@ -1,0 +1,36 @@
+form.sample-data-form {
+
+    padding: 10px;
+
+    &, input, textarea, select {
+
+        font-size: var(--base-font-size);
+        color: var(--base-color);
+
+    }
+
+    input, textarea, select {
+
+        display: block;
+        padding: 10px;
+        min-width: 400px;
+        border: none;
+        background-color: #F7F7F7;
+
+    }
+
+    label {
+
+        display: block;
+        line-height: 2;
+        margin-bottom: 10px;
+
+        .label-text {
+
+            display: block;
+
+        }
+
+    }
+
+}

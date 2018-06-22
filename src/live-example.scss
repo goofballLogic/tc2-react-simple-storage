@@ -1,0 +1,15 @@
+article.live-example {
+
+    --base-color: #555;
+    --base-font-size: 10pt;
+
+    * {
+
+        box-sizing: border-box;
+        font-family: Arial;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+
+    }
+
+}

@@ -1,20 +1,32 @@
 import React, { Component } from "react";
 import { render } from "react-dom";
 
+import "./live-example.scss";
+
+import SampleDataForm from "./SampleDataForm";
+
 import { X } from "./";
 
-const LiveExample = () => <article className="live-example">
+class LiveExample extends Component {
 
-    { X() }
-    
-</article>;
+    render() {
 
-export const renderLiveExample = selector => 
+        return <article className="live-example">
 
-    render( 
-    
+            <SampleDataForm />
+
+        </article>;
+
+    }
+
+}
+
+export const renderLiveExample = selector =>
+
+    render(
+
         <LiveExample />,
         document.querySelector( selector )
-    
+
     );
 
