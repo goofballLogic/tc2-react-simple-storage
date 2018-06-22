@@ -1,13 +1,10 @@
 import React, { Component } from "react";
+import { queryProviders } from "./providers/messages";
 
-async function queryProviders() {
+const ProviderChoice = ( { id, name, Icon } ) => console.log( Icon ) || <li>
 
-
-}
-
-const ProviderChoice = ( { id, name } ) => <li key={id}>
-
-    {name}
+    <div className="icon"><Icon /></div>
+    <div className="name">{name}</div>
 
 </li>;
 
@@ -17,7 +14,12 @@ class ProviderChooser extends Component {
 
         super();
         this.state = {};
-        queryProviders().then( providers => this.setState( { providers } ) );
+        queryProviders().then(
+
+            providers => this.setState( { providers } ),
+            ex => this.setState( { error: ex } )
+
+        );
 
     }
 
@@ -31,18 +33,20 @@ class ProviderChooser extends Component {
 
     }
 
-    renderChooserProvider() {
+    renderChooseProvider() {
 
         const { providers } = this.state;
         return <ul className="providers">
 
-            {providers.map( provider => <ProviderChoice {...provider} /> )}
+            {providers.map( provider => <ProviderChoice key={provider.id} {...provider} /> )}
 
         </ul>;
 
     }
+
     render() {
 
+        if ( this.state.error ) { throw this.state.error; }
         return <div className="provider-chooser">
 
             {this.state.providers

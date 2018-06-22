@@ -2,14 +2,12 @@ article.live-example {
 
     --base-color: #555;
     --base-font-size: 10pt;
-
     &, input, textarea, select {
 
         font-size: var(--base-font-size);
         color: var(--base-color);
 
     }
-
     * {
 
         box-sizing: border-box;
@@ -18,11 +16,9 @@ article.live-example {
         -moz-osx-font-smoothing: grayscale;
 
     }
-
     .storage-status {
 
         padding: 10px;
-
         .connection {
 
             border: solid 1px black;
@@ -30,12 +26,33 @@ article.live-example {
             opacity: 0.3;
             margin: 0 10px;
             padding: 5px 10px;
-
             &.connected {
 
                 color: green;
                 background-color: #EFE;
                 border-color: green;
+
+            }
+
+        }
+
+    }
+
+    .provider-chooser {
+
+        ul.providers {
+
+            padding: 10px;
+            list-style: none;
+            li {
+
+                text-align: center;
+                max-width: 100px;
+                .icon {
+
+                    margin-bottom: 10px;
+
+                }
 
             }
 
