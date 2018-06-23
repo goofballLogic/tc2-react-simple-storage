@@ -12,17 +12,13 @@ class LiveExample extends Component {
     constructor() {
 
         super();
-        this.state = {
-
-            saveNeeded: null,
-            saveContext: null
-
-        };
+        this.state = {};
 
     }
 
     handleSave( saveNeeded ) {
 
+        this.savingDialog.showModal();
         this.setState( { saveNeeded } );
 
     }
@@ -32,6 +28,15 @@ class LiveExample extends Component {
         this.setState( { saveContext } );
 
     }
+
+    handleCancelSaving() {
+
+        this.savingDialog.close();
+        this.setState( { saveNeeded: undefined } );
+        setTimeout( () => alert( "Save cancelled" ), 0 );
+
+    }
+
     render() {
 
         const { saveNeeded, saveContext } = this.state;
@@ -39,8 +44,14 @@ class LiveExample extends Component {
 
             <ErrorBoundary>
 
-                <StorageStatus saveContext={saveContext} />
-                {saveNeeded && <Saving data={saveNeeded} context={saveContext} onContextChange={context => this.handleContextChange( context )} />}
+                <StorageStatus context={saveContext} />
+                <dialog ref={x => window.x = this.savingDialog = x}>
+                    {saveNeeded && <Saving
+                        data={saveNeeded}
+                        context={saveContext}
+                        onContextChange={context => this.handleContextChange( context )}
+                        onCancel={() => this.handleCancelSaving()} />}
+                </dialog>
                 <SampleDataForm onSave={data => this.handleSave( data )} />
 
             </ErrorBoundary>

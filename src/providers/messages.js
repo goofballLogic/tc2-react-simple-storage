@@ -22,7 +22,7 @@ export function queryProviders() {
 
             }
 
-        }, 500 );
+        }, 200 );
 
     } );
 

@@ -1,10 +1,16 @@
 import React, { Component } from "react";
 import { queryProviders } from "./providers/messages";
 
-const ProviderChoice = ( { id, name, Icon } ) => console.log( Icon ) || <li>
+const noop = () => {};
 
-    <div className="icon"><Icon /></div>
-    <div className="name">{name}</div>
+const ProviderChoice = ( { id, name, Icon, onChoose, Provider } ) => <li>
+
+    <button onClick={() => onChoose( { id, name, Provider } ) }>
+
+        <div className="icon"><Icon /></div>
+        <div className="name">{name}</div>
+
+    </button>
 
 </li>;
 
@@ -36,9 +42,10 @@ class ProviderChooser extends Component {
     renderChooseProvider() {
 
         const { providers } = this.state;
+        const { onChoose = noop } = this.props;
         return <ul className="providers">
 
-            {providers.map( provider => <ProviderChoice key={provider.id} {...provider} /> )}
+            {providers.map( provider => <ProviderChoice key={provider.id} {...provider} onChoose={ onChoose } /> )}
 
         </ul>;
 

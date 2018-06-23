@@ -8,6 +8,11 @@ const StorageStatus = ( { context = {} } ) => <article className="storage-status
         {context.connected ? "Connected" : "Not connected"}
 
     </span>
+    {context.provider && <span>
+
+        {context.provider.name }
+
+    </span>}
 
 </article>;
 
