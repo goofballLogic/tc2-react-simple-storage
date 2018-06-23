@@ -25,6 +25,13 @@ module.exports = {
             },
             {
 
+                test: /\.svg$/,
+                exclude: /node_modules/,
+                loader: "svg-react-loader"
+
+            },
+            {
+
                 test: /\.scss$/,
                 exclude: /node_modules/,
                 loader: 'css-loader'
