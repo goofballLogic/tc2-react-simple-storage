@@ -1,5 +1,7 @@
 import React, { Component } from "react";
-import { initializing } from "./google-drive-logic";
+import { initializing, listFolders, authorize } from "./google-drive-logic";
+
+const Folder = ( { id, name, parents } ) => <li>{name} {JSON.stringify(parents)}</li>;
 
 class Provider extends Component {
 
@@ -7,20 +9,51 @@ class Provider extends Component {
 
         super();
         this.state = {};
-        initializing.then( () => this.setState( { initialized: true } ) );
+        initializing
+            .then( gapi => this.setState( { initialized: true, gapi } ) )
+            .then( () => this.listFolders() )
+            .catch( err => this.setState( { err } ) );
+
+    }
+
+    listFolders() {
+
+        const { onChange, provider } = this.props;
+        const { gapi } = this.state;
+        authorize( gapi.client ).then( user => {
+
+            if ( !provider.user || provider.user.id !== user.id )
+                onChange( { ...provider, user } );
+            return listFolders( gapi.client );
+
+        } ).then( folderBrowser => this.setState( { folderBrowser } ) );
+
+    }
+
+    renderFolderList() {
+
+        const { folderBrowser } = this.state;
+        return folderBrowser
+            ? <ul className="folder-list">
+
+                {folderBrowser.list.map( item => <Folder key={item.id} {...item } /> )}
+
+            </ul>
+            : <div>loading...</div>;
 
     }
 
     render() {
 
-        const { deselect } = this.props;
-        const { initialized } = this.state;
+        const { onChange } = this.props;
+        const { initialized, err } = this.state;
+        if ( err ) { throw err; }
         return <div>
 
             {initialized
-                ? <div>Initialized</div>
+                ? this.renderFolderList()
                 : <div>Initializing...</div>}
-            {deselect && <button onClick={deselect}>Deselect</button>}
+            <button onClick={() => onChange( null )}>Deselect</button>
 
         </div>;
 

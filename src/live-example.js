@@ -19,6 +19,7 @@ class LiveExample extends Component {
     handleSave( saveNeeded ) {
 
         this.savingDialog.showModal();
+        setTimeout( () => this.savingDialog.querySelector( "button" ).focus(), 100 );
         this.setState( { saveNeeded } );
 
     }
@@ -45,7 +46,7 @@ class LiveExample extends Component {
             <ErrorBoundary>
 
                 <StorageStatus context={saveContext} />
-                <dialog ref={x => window.x = this.savingDialog = x}>
+                <dialog ref={x => this.savingDialog = x}>
                     {saveNeeded && <Saving
                         data={saveNeeded}
                         context={saveContext}

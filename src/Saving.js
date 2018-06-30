@@ -13,16 +13,19 @@ class Saving extends Component {
 
     render() {
 
-        const { context = {}, onCancel } = this.props;
-        const { provider = {} } = context;
-console.log( provider );
-        const { Provider } = provider;
+        const { context, onCancel } = this.props;
+        const { provider } = context || {};
+        const { Provider } = provider || {};
         return <article className="saving">
 
             <header>Saving</header>
             <button onClick={onCancel}>Cancel</button>
             { Provider
-                ? <div className="selected-provider"><Provider {...this.props} deselect={() => this.handleChoose( undefined )} /></div>
+                ? <div className="selected-provider">
+
+                    <Provider {...this.props} onChange={provider => this.handleChoose( provider )} provider={provider} />
+
+                </div>
                 : <ProviderChooser {...this.props} onChoose={provider => this.handleChoose( provider ) } /> }
 
 
