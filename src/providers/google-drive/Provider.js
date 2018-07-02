@@ -48,7 +48,7 @@ class Provider extends Component {
 
         const { folderBrowsers } = this.state;
         return folderBrowsers.length > 0
-            ? folderBrowsers.map( folderBrowser => console.log( folderBrowser ) || <section key={folderBrowser.current.id}>
+            ? folderBrowsers.map( folderBrowser => <section key={folderBrowser.current.id}>
 
                 <h3>{folderBrowser.current.name || "Home"}</h3>
                 <ul className="folder-list">
