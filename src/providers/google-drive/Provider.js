@@ -1,14 +1,14 @@
 import React, { Component } from "react";
 import { initializing, listFolders, authorize } from "./google-drive-logic";
 
-const Folder = ( { id, name, parents } ) => <li>{name} {JSON.stringify(parents)}</li>;
+const Folder = ( { id, name, onClick } ) => <li><button onClick={() => onClick()}>{name}</button></li>;
 
 class Provider extends Component {
 
     constructor() {
 
         super();
-        this.state = {};
+        this.state = { folderBrowsers: [] };
         initializing
             .then( gapi => this.setState( { initialized: true, gapi } ) )
             .then( () => this.listFolders() )
@@ -18,44 +18,55 @@ class Provider extends Component {
 
     listFolders() {
 
-        const { onChange, provider } = this.props;
+        const { onChoose, provider } = this.props;
         const { gapi } = this.state;
         authorize( gapi.client ).then( user => {
 
             if ( !provider.user || provider.user.id !== user.id )
-                onChange( { ...provider, user } );
+                onChoose( { ...provider, user } );
             return listFolders( gapi.client );
 
-        } ).then( folderBrowser => this.setState( { folderBrowser } ) );
+        } ).then( folderBrowser => this.setState( { folderBrowsers: [ folderBrowser ] } ) );
+
+    }
+
+    go( from, to ) {
+
+        let folder = from.go( to );
+        const folderBrowsers = [ folder ];
+        while( folder.back ) {
+
+            folder = folder.back();
+            folderBrowsers.unshift( folder );
+
+        }
+        this.setState( { folderBrowsers } );
 
     }
 
     renderFolderList() {
 
-        const { folderBrowser } = this.state;
-        return folderBrowser
-            ? <ul className="folder-list">
+        const { folderBrowsers } = this.state;
+        return folderBrowsers.length > 0
+            ? folderBrowsers.map( folderBrowser => console.log( folderBrowser ) || <section key={folderBrowser.current.id}>
 
-                {folderBrowser.list.map( item => <Folder key={item.id} {...item } /> )}
+                <h3>{folderBrowser.current.name || "Home"}</h3>
+                <ul className="folder-list">
 
-            </ul>
-            : <div>loading...</div>;
+                    {( folderBrowser.list || [] ).map( item => <Folder key={item.id} {...item } onClick={() => this.go( folderBrowser, item )} /> )}
+
+                </ul>
+
+            </section> )
+            : <div key="folder-list-loading">loading...</div>;
 
     }
 
     render() {
 
-        const { onChange } = this.props;
         const { initialized, err } = this.state;
         if ( err ) { throw err; }
-        return <div>
-
-            {initialized
-                ? this.renderFolderList()
-                : <div>Initializing...</div>}
-            <button onClick={() => onChange( null )}>Deselect</button>
-
-        </div>;
+        return initialized ? this.renderFolderList() : <div key="initializing">Initializing...</div>;
 
     }
 

@@ -85,10 +85,80 @@ article.live-example {
 
     .saving {
 
-        margin: 10px;
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 120px);
+        overflow: hidden;
         header {
 
-            font-size: 2em;
+            h2 {
+
+                margin: 0;
+                display: inline-block;
+
+            }
+
+        }
+        .provider-chooser {
+
+            flex: 1;
+
+        }
+        .selected-provider {
+
+            overflow: hidden;
+            display: flex;
+            flex: 1;
+            section {
+
+                border: solid 0.1px #EEE;
+                margin-top: 10px;
+                display: grid;
+                grid-template-rows: min-content;
+                width: 300px;
+                overflow-x: auto;
+                h3 {
+
+                    margin: 0;
+                    grid-row: 1 / 2;
+                    padding: 5px;
+                    background-color: #EEE;
+                    font-size: 10pt;
+
+                }
+                .folder-list {
+
+                    margin: 0;
+                    grid-row: 2 / 3;
+                    overflow-y: auto;
+                    padding: 0;
+                    list-style: none;
+                    li {
+
+                        white-space: nowrap;
+                        button {
+
+                            width: 100%;
+                            text-align: left;
+                            background-color: transparent;
+                            border: none;
+                            display: block;
+                            outline: none;
+                            font-size: 10pt;
+                            &::before {
+
+                                content: "📁";
+                                margin-right: 10px;
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
 
         }
 
