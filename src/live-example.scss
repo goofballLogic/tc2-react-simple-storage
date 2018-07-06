@@ -133,7 +133,7 @@ article.live-example {
                 overflow-y: hidden;
                 flex-basis: auto;
                 max-height: 0px;
-                transition: max-height 0.2s, overflow-y 0s;
+                transition: all 0.1s;
 
                 li {
 
@@ -169,7 +169,7 @@ article.live-example {
                     flex: 1;
                     overflow-y: auto;
                     max-height: 100%;
-                    transition: overflow-y 0s, max-height 0.2s;
+                    transition: all 0.1s;
 
                 }
 
