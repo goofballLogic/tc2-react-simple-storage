@@ -11,6 +11,7 @@ class BrowseList {
         };
         this.current = current || { id: 0 };
         if ( back ) this.back = () => back;
+        this.path = ( path = [] ) => this.back ? [ ...this.back().path(), this.current.name ] : [];
 
     }
 

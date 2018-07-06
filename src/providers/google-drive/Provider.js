@@ -40,24 +40,70 @@ class Provider extends Component {
             folderBrowsers.unshift( folder );
 
         }
-        this.setState( { folderBrowsers } );
+        this.setState( {
+
+            folderBrowsers,
+            selectedBrowser: folderBrowsers[ folderBrowsers.length - 1 ]
+
+        } );
+
+    }
+
+    select( selectedBrowser ) {
+
+        this.setState( { selectedBrowser } );
 
     }
 
     renderFolderList() {
 
         const { folderBrowsers } = this.state;
-        return folderBrowsers.length > 0
-            ? folderBrowsers.map( folderBrowser => <section key={folderBrowser.current.id}>
+        const selectedBrowser = this.state.selectedBrowser || folderBrowsers[ folderBrowsers.length - 1 ];
+        return <div className="folder-browsers" key="selected-folder">
 
-                <h3>{folderBrowser.current.name || "Home"}</h3>
+            {folderBrowsers.map( folderBrowser => <div key={folderBrowser.current.id} className={folderBrowser === selectedBrowser ? "selected" : ""}>
+
+                <button className="folder-list-folder" onClick={() => this.select( folderBrowser )}>{folderBrowser.current.name || "Home"}</button>
                 <ul className="folder-list">
 
                     {( folderBrowser.list || [] ).map( item => <Folder key={item.id} {...item } onClick={() => this.go( folderBrowser, item )} /> )}
 
                 </ul>
 
-            </section> )
+            </div> )}
+
+        </div>;
+
+    }
+
+    renderSelectedDetail() {
+
+        const { folderBrowsers } = this.state;
+        const selectedBrowser = this.state.selectedBrowser || folderBrowsers[ folderBrowsers.length - 1 ];
+        if ( !selectedBrowser ) return null;
+        let path = selectedBrowser.path().slice( 0, -1 ).join( " / " );
+        path = path ? `/${path}` : "";
+        return <div className="selected-folder" key="selected-folder">
+
+            <p>Select a folder:</p>
+            <div>{path}</div>
+            <h2>{selectedBrowser.current.name || "Home"}</h2>
+            <button>Select</button>
+
+        </div>;
+
+    }
+
+    renderPicker() {
+
+        const { folderBrowsers } = this.state;
+        return folderBrowsers.length > 0
+            ? [
+
+                this.renderSelectedDetail(),
+                this.renderFolderList()
+
+            ]
             : <div key="folder-list-loading">loading...</div>;
 
     }
@@ -66,7 +112,7 @@ class Provider extends Component {
 
         const { initialized, err } = this.state;
         if ( err ) { throw err; }
-        return initialized ? this.renderFolderList() : <div key="initializing">Initializing...</div>;
+        return initialized ? this.renderPicker() : <div key="initializing">Initializing...</div>;
 
     }
 
