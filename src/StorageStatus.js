@@ -1,6 +1,6 @@
 import React from "react";
 
-const StorageStatus = ( { context = {} } ) => <article className="storage-status">
+const StorageStatus = ( { context = {} } ) => console.log( context ) || <article className="storage-status">
 
     <span>Storage:</span>
     <span className={`connection ${context.connected ? "" : "dis"}connected` }>

@@ -4,10 +4,10 @@ import ProviderChooser from "./ProviderChooser";
 
 class Saving extends Component {
 
-    handleChoose( provider ) {
+    handleChoose( chosenContext ) {
 
         const { context, onContextChange } = this.props;
-        onContextChange( { ...context, provider } );
+        onContextChange( { ...context, ...chosenContext } );
 
     }
 
@@ -16,23 +16,28 @@ class Saving extends Component {
         const { context, onCancel } = this.props;
         const { provider } = context || {};
         const { Provider } = provider || {};
-        const onChoose = provider => this.handleChoose( provider );
+        const onChoose = context => this.handleChoose( context );
         return <article className="saving">
 
             <header>
 
                 <h2>Saving</h2>
                 <button onClick={onCancel}>Cancel</button>
-                <button onClick={() => this.handleChoose( null )}>Deselect</button>
+                {Provider && <div className="provider-name">
+
+                    <span>{provider.name}</span>
+                    <button onClick={() => this.handleChoose( null )}>Deselect</button>
+
+                </div>}
 
             </header>
             { Provider
-                ? <div className="selected-provider">
+                ? <div className={`selected-provider ${provider.className}`}>
 
                     <Provider {...this.props} provider={provider} onChoose={onChoose} />
 
                 </div>
-                : <ProviderChooser {...this.props} provider={provider} onChoose={ onChoose } /> }
+                : <ProviderChooser {...this.props} provider={provider} onChoose={onChoose} /> }
 
 
         </article>;

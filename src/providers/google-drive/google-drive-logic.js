@@ -94,18 +94,42 @@ function asFile( googleFile ) {
 
 }
 
-export async function listFolders( client ) {
+function ensureSuccessStatus( response, description ) {
 
-    const FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
-    const response = await client.drive.files.list( {
+    if ( response.status === 200 ) return;
+    console.error( response, description );
+    throw new Error( `Unexpected response status: ${response.status} ${description ? `(${description})` : ""}` );
 
-        pageSize: 999,
-        q: `mimeType='${FOLDER_MIME_TYPE}'`,
-        fields: 'files(id, name, parents, iconLink, modifiedTime)'
+}
 
-    } );
+const FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 
-    const { top, childIndex } = response.result.files.reduce( ( ret, file ) => {
+export async function listFolders() {
+
+    const gapi = await loadGoogleAPI();
+    const filesClient = gapi.client.drive.files;
+    const [ foldersResponse, rootResponse ] = await Promise.all( [
+
+        filesClient.list( {
+
+            pageSize: 999,
+            q: `mimeType='${FOLDER_MIME_TYPE}' and trashed = false`,
+            fields: 'files(id, name, parents, iconLink, modifiedTime)'
+
+        } ),
+        filesClient.get( { fileId: "root" } )
+
+    ] );
+    ensureSuccessStatus( foldersResponse, "Querying for all folders" );
+    ensureSuccessStatus( rootResponse, "Querying for root folder" );
+    const working = {
+
+        top: [ asFile( rootResponse.result ) ],
+        index: {},
+        childIndex: {}
+
+    };
+    const { top, childIndex } = foldersResponse.result.files.reduce( ( ret, file ) => {
 
         const parents = file.parents || [];
         if ( parents.length < 1 ) ret.top.push( file );
@@ -116,11 +140,36 @@ export async function listFolders( client ) {
         }
         return ret;
 
-    }, { top: [], index: {}, childIndex: {} } );
+    }, working );
 
     const traversal = item => [ childIndex[ item.id ], traversal ];
     return new BrowseList( top, traversal );
 
-    return response.result.files.map(   );
+}
+
+async function generateId() {
+
+    const gapi = await loadGoogleAPI();
+    const response = await gapi.client.drive.files.generateIds( { count: 1 } );
+    ensureSuccessStatus( response );
+    const { ids } = response.result;
+    return ids[ 0 ];
+
+}
+
+export async function createFolder( browseList, folderName ) {
+
+    const gapi = await loadGoogleAPI();
+    const options = {
+
+        name: folderName,
+        mimeType: FOLDER_MIME_TYPE,
+        fields: "id",
+        parents: [ browseList.current.id ]
+
+    };
+    const response = await gapi.client.drive.files.create( options );
+    ensureSuccessStatus( response );
+    return response.result.id;
 
 }

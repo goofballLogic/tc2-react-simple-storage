@@ -26,6 +26,21 @@ class LiveExample extends Component {
 
     handleContextChange( saveContext ) {
 
+        const { saveNeeded } = this.state;
+        if ( saveContext.connected ) {
+
+            this.savingDialog.close();
+            this.setState( { saveNeeded: undefined } );
+
+        } else if ( saveContext.folderBrowser ) {
+
+            saveContext.provider.fetch( saveContext.folderBrowser, "_index.json" ).then( content => {
+
+console.log( content );
+
+            } );
+
+        }
         this.setState( { saveContext } );
 
     }

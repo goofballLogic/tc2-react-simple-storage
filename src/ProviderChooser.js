@@ -5,7 +5,7 @@ const noop = () => {};
 
 const ProviderChoice = ( { id, name, Icon, onChoose, Provider } ) => <li>
 
-    <button onClick={() => onChoose( { id, name, Provider } ) }>
+    <button onClick={onChoose}>
 
         <div className="icon"><Icon /></div>
         <div className="name">{name}</div>
@@ -45,7 +45,7 @@ class ProviderChooser extends Component {
         const { onChoose = noop } = this.props;
         return <ul className="providers">
 
-            {providers.map( provider => <ProviderChoice key={provider.id} {...provider} onChoose={ onChoose } /> )}
+            {providers.map( provider => <ProviderChoice key={provider.id} {...provider} onChoose={() => onChoose( { provider } )} /> )}
 
         </ul>;
 
