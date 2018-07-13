@@ -2,7 +2,11 @@ import React, { Component } from "react";
 import { format, parse } from "date-fns";
 import { initializing, listFolders, authorize, createFolder, deleteFolder } from "./google-drive-logic";
 
-const Folder = ( { id, name, onClick } ) => <li><button onClick={() => onClick()}>{name}</button></li>;
+const Folder = ( { id, name, icon, onClick } ) => <li>
+
+    <button onClick={() => onClick()}>{name}</button>
+
+</li>;
 
 function modifyDate( value, pattern = "dddd, MMMM Qo, YYYY [at] h:mma" ) {
 
