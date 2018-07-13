@@ -163,3 +163,11 @@ export async function createFolder( browseList, folderName ) {
     return response.result.id;
 
 }
+
+export async function deleteFolder( browseList ) {
+
+    const gapi = await loadGoogleAPI();
+    const response = await gapi.client.drive.files.delete( { fileId: browseList.current.id } );
+    return response.result.id;
+
+}

@@ -125,6 +125,16 @@ article.live-example {
             max-height: 100%;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: min-content auto;
+            .error {
+
+                position: absolute;
+                background-color: #FEE;
+                border: solid 0 red;
+                border-left-width: 10px;
+                padding: 40px;
+                height: 100%;
+
+            }
             .folder-list-loading {
 
                 padding: 40px;
@@ -250,6 +260,23 @@ article.live-example {
                 }
                 .delete-folder {
 
+                    &.confirm-delete-folder {
+
+                        border-left: solid 10px red;
+                        padding-left: 10px;
+                        background-color: #FEE;
+                        button {
+
+                            color: red;
+
+                        }
+                        .path-and-name {
+
+                            display: block;
+
+                        }
+
+                    }
                     .path-and-name {
 
                         display: none;

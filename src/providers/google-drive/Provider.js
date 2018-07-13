@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { format, parse } from "date-fns";
-import { initializing, listFolders, authorize, createFolder } from "./google-drive-logic";
+import { initializing, listFolders, authorize, createFolder, deleteFolder } from "./google-drive-logic";
 
 const Folder = ( { id, name, onClick } ) => <li><button onClick={() => onClick()}>{name}</button></li>;
 
@@ -35,7 +35,12 @@ class Provider extends Component {
 
     async listFolders( folderPath ) {
 
-        this.setState( { isLoading: true } );
+        this.setState( {
+
+            isLoading: true,
+            confirmDelete: undefined
+
+        } );
         const { onChoose } = this.props;
         const { selectedBrowser } = this.state;
         const user = await authorize();
@@ -82,9 +87,65 @@ class Provider extends Component {
         this.setState( {
 
             folderBrowsers,
-            selectedBrowser
+            selectedBrowser,
+            confirmDelete: undefined
 
         } );
+
+    }
+
+
+    async createFolder() {
+
+        const { selectedBrowser, folderName } = this.state;
+        if ( !folderName ) { return; }
+        this.setState( {
+
+            isLoading: true,
+            confirmDelete: undefined
+
+        } );
+        try {
+
+            const folderId = await createFolder( selectedBrowser, folderName );
+            const newFolderPath = [ ...selectedBrowser.pathIds(), folderId ];
+            this.listFolders( newFolderPath );
+
+        } catch( err ) {
+
+            this.setState( { isLoading: undefined, err } );
+
+        }
+
+    }
+
+    async deleteFolder() {
+
+        const { confirmDelete, selectedBrowser } = this.state;
+        if ( !selectedBrowser ) return;
+        if ( confirmDelete !== selectedBrowser ) {
+
+            this.setState( { confirmDelete: selectedBrowser } );
+            return;
+
+        }
+        this.setState( {
+
+            isLoading: true,
+            confirmDelete: undefined
+
+        } );
+        try {
+
+            const newFolderPath = selectedBrowser.back().pathIds();
+            const folderId = await deleteFolder( selectedBrowser );
+            this.listFolders( newFolderPath );
+
+        } catch( err ) {
+
+            this.setState( { isLoading: undefined, err } );
+
+        }
 
     }
 
@@ -122,28 +183,9 @@ class Provider extends Component {
 
     }
 
-    async createFolder() {
-
-        const { selectedBrowser, folderName } = this.state;
-        if ( !folderName ) { return; }
-        this.setState( { isLoading: true } );
-        try {
-
-            const folderId = await createFolder( selectedBrowser, folderName );
-            const newFolderPath = [ ...selectedBrowser.pathIds(), folderId ];
-            this.listFolders( newFolderPath );
-
-        } catch( err ) {
-
-            this.setState( { isLoading: undefined, err } );
-
-        }
-
-    }
-
     renderSelectedDetail() {
 
-        const { folderBrowsers, folderName } = this.state;
+        const { folderBrowsers, folderName, confirmDelete } = this.state;
         const selectedBrowser = this.state.selectedBrowser || folderBrowsers[ folderBrowsers.length - 1 ];
         if ( !selectedBrowser ) return null;
         let path = selectedBrowser.path().slice( 0, -1 ).join( `\u200B/\u200B` );
@@ -151,9 +193,10 @@ class Provider extends Component {
         const formatted = modifyDate( modified );
         const onFolderNameChange = e => this.setState( { folderName: e.target.value } );
         const onCreateClick = () => this.createFolder();
-        const onDeleteClick = () => this.deleteFolder();
+        const onDeleteClick = () => setTimeout( () => this.deleteFolder(), 500 );
         const onSelectClick = () => this.handleFolderSelect( selectedBrowser );
         const cancelSubmit = e => e.preventDefault();
+        const isConfirmDelete = confirmDelete === selectedBrowser;
         return id
             ?
             <div className="selected-folder" key="selected-folder">
@@ -174,11 +217,11 @@ class Provider extends Component {
 
 
                 </form>
-                <form onSubmit={cancelSubmit} className="delete-folder">
+                <form onSubmit={cancelSubmit} className={`delete-folder${isConfirmDelete ? " confirm-delete-folder" : ""}`}>
 
                     <h3>Delete this folder</h3>
                     <div className="path-and-name">{path}/&shy;{name}</div>
-                    <button onClick={onDeleteClick}>Delete</button>
+                    <button onClick={onDeleteClick}>{isConfirmDelete ? "Confirm delete" : "Delete"}</button>
 
                 </form>
 
@@ -198,12 +241,29 @@ class Provider extends Component {
 
     }
 
+    renderError() {
+
+        const { err } = this.state;
+        const { result } = err;
+        const message = ( ( result && result.error ) ? result.error.message : err.message ) || `Unknown error: ${err}`;
+        const clickOk = () => this.setState( { err: undefined } );
+        return <div className="error">
+
+            <h3>An error occurred</h3>
+            <p>{message}</p>
+            <button onClick={clickOk}>Ok</button>
+
+        </div>;
+
+    }
+
     renderPicker() {
 
-        const { isLoading } = this.state;
+        const { isLoading, err } = this.state;
         return [
 
             isLoading ? this.renderLoading() : null,
+            err ? this.renderError() : null,
             this.renderControls(),
             this.renderSelectedDetail(),
             this.renderFolderList()
@@ -215,7 +275,6 @@ class Provider extends Component {
     render() {
 
         const { initialized, err } = this.state;
-        if ( err ) { throw err; }
         return initialized
             ? this.renderPicker()
             : <div key="initializing">Initializing...</div>;
