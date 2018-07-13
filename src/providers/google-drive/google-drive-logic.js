@@ -147,16 +147,6 @@ export async function listFolders() {
 
 }
 
-async function generateId() {
-
-    const gapi = await loadGoogleAPI();
-    const response = await gapi.client.drive.files.generateIds( { count: 1 } );
-    ensureSuccessStatus( response );
-    const { ids } = response.result;
-    return ids[ 0 ];
-
-}
-
 export async function createFolder( browseList, folderName ) {
 
     const gapi = await loadGoogleAPI();

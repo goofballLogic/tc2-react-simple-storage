@@ -33,13 +33,24 @@ class Provider extends Component {
 
     }
 
-    async listFolders() {
+    async listFolders( folderPath ) {
 
+        this.setState( { isLoading: true } );
         const { onChoose } = this.props;
+        const { selectedBrowser } = this.state;
         const user = await authorize();
         onChoose( { user } );
-        const folderBrowser = await listFolders();
-        this.setState( { folderBrowsers: [ folderBrowser ] } );
+        folderPath = folderPath || ( selectedBrowser ? selectedBrowser.pathIds() : [] );
+        let rootBrowser = await listFolders();
+        const newFolderBrowsers = rootBrowser.walk( folderPath );
+        const newSelectedBrowser = newFolderBrowsers[ newFolderBrowsers.length - 1 ];
+        this.setState( {
+
+            isLoading: undefined,
+            selectedBrowser: newSelectedBrowser,
+            folderBrowsers: newFolderBrowsers
+
+        } );
 
     }
 
@@ -53,36 +64,42 @@ class Provider extends Component {
     go( from, to ) {
 
         let folder = from.go( to );
-        const folderBrowsers = [ folder ];
-        while( folder.back ) {
-
-            folder = folder.back();
-            folderBrowsers.unshift( folder );
-
-        }
-        this.setState( {
-
-            folderBrowsers,
-            selectedBrowser: folderBrowsers[ folderBrowsers.length - 1 ]
-
-        } );
+        this.select( folder );
+        return folder;
 
     }
 
     select( selectedBrowser ) {
 
-        this.setState( { selectedBrowser } );
+        const folderBrowsers = [ selectedBrowser ];
+        let walker = selectedBrowser;
+        while( walker.back ) {
+
+            walker = walker.back();
+            folderBrowsers.unshift( walker );
+
+        }
+        this.setState( {
+
+            folderBrowsers,
+            selectedBrowser
+
+        } );
 
     }
 
     renderControls() {
 
-        const { folderBrowsers } = this.state;
+        const { folderBrowsers, isLoading } = this.state;
         const selectedBrowser = this.state.selectedBrowser || folderBrowsers[ folderBrowsers.length - 1 ];
-        return <div className="controls">
+        const onSelectClick = this.handleFolderSelect.bind( this, selectedBrowser );
+        const isClickDisabled = isLoading || !(selectedBrowser && selectedBrowser.current.id);
+        const onRefreshFoldersClick = this.listFolders.bind( this );
+        const isRefreshDisabled = isLoading;
+        return <div key="controls" className="controls">
 
-            <button onClick={() => this.handleFolderSelect( selectedBrowser )} disabled={!(selectedBrowser && selectedBrowser.current.id)}>Select</button>
-            <button onClick={() => listFolders()}>Refresh folders</button>
+            <button className="select" onClick={onSelectClick} disabled={isClickDisabled}>Select</button>
+            <button className="refreshFolders" onClick={onRefreshFoldersClick} disabled={isRefreshDisabled}>Refresh folders</button>
 
         </div>;
 
@@ -114,16 +131,16 @@ class Provider extends Component {
         const { selectedBrowser, folderName } = this.state;
         if ( !folderName ) { return; }
         const { context } = this.props;
-        this.setState( { creatingFolder: true } );
+        this.setState( { isLoading: true } );
         try {
 
             const folderId = await createFolder( selectedBrowser, folderName );
-            const folderBrowser = await listFolders( folderId );
-            this.setState( { folderName: "", creatingFolder: undefined } );
+            const newFolderPath = [ ...selectedBrowser.pathIds(), folderId ];
+            this.listFolders( newFolderPath );
 
         } catch( err ) {
 
-            this.setState( { creatingFolder: undefined, err } );
+            this.setState( { isLoading: undefined, err } );
 
         }
 
@@ -135,11 +152,11 @@ class Provider extends Component {
         const selectedBrowser = this.state.selectedBrowser || folderBrowsers[ folderBrowsers.length - 1 ];
         if ( !selectedBrowser ) return null;
         let path = selectedBrowser.path().slice( 0, -1 ).join( "/" );
-        path = path ? `/${path}` : "";
         const { name, modified, id } = selectedBrowser.current;
         const formatted = modifyDate( modified );
         return id
-            ? <div className="selected-folder" key="selected-folder">
+            ?
+            <div className="selected-folder" key="selected-folder">
 
                 <div>{path}</div>
                 <h2>{name}</h2>
@@ -153,7 +170,8 @@ class Provider extends Component {
                 </form>
 
             </div>
-            : <div className="selected-folder" key="selected-folder">
+            :
+            <div className="selected-folder" key="selected-folder">
 
                 <h2>No folder selected</h2>
 
@@ -161,12 +179,23 @@ class Provider extends Component {
 
     }
 
+    renderLoading() {
+
+        return <div className="folder-list-loading" key="folder-list-loading">loading...</div>;
+
+    }
+
     renderPicker() {
 
-        const { folderBrowsers } = this.state;
-        return folderBrowsers.length > 0
-            ? [ this.renderControls(), this.renderSelectedDetail(), this.renderFolderList() ]
-            : <div className="folder-list-loading" key="folder-list-loading">loading...</div>;
+        const { isLoading } = this.state;
+        return [
+
+            isLoading ? this.renderLoading() : null,
+            this.renderControls(),
+            this.renderSelectedDetail(),
+            this.renderFolderList()
+
+        ];
 
     }
 
