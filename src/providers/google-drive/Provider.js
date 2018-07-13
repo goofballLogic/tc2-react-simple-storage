@@ -90,15 +90,11 @@ class Provider extends Component {
 
     renderControls() {
 
-        const { folderBrowsers, isLoading } = this.state;
-        const selectedBrowser = this.state.selectedBrowser || folderBrowsers[ folderBrowsers.length - 1 ];
-        const onSelectClick = this.handleFolderSelect.bind( this, selectedBrowser );
-        const isClickDisabled = isLoading || !(selectedBrowser && selectedBrowser.current.id);
-        const onRefreshFoldersClick = this.listFolders.bind( this );
+        const { isLoading } = this.state;
+        const onRefreshFoldersClick = () => this.listFolders();
         const isRefreshDisabled = isLoading;
         return <div key="controls" className="controls">
 
-            <button className="select" onClick={onSelectClick} disabled={isClickDisabled}>Select</button>
             <button className="refreshFolders" onClick={onRefreshFoldersClick} disabled={isRefreshDisabled}>Refresh folders</button>
 
         </div>;
@@ -130,7 +126,6 @@ class Provider extends Component {
 
         const { selectedBrowser, folderName } = this.state;
         if ( !folderName ) { return; }
-        const { context } = this.props;
         this.setState( { isLoading: true } );
         try {
 
@@ -151,21 +146,39 @@ class Provider extends Component {
         const { folderBrowsers, folderName } = this.state;
         const selectedBrowser = this.state.selectedBrowser || folderBrowsers[ folderBrowsers.length - 1 ];
         if ( !selectedBrowser ) return null;
-        let path = selectedBrowser.path().slice( 0, -1 ).join( "/" );
+        let path = selectedBrowser.path().slice( 0, -1 ).join( `\u200B/\u200B` );
         const { name, modified, id } = selectedBrowser.current;
         const formatted = modifyDate( modified );
+        const onFolderNameChange = e => this.setState( { folderName: e.target.value } );
+        const onCreateClick = () => this.createFolder();
+        const onDeleteClick = () => this.deleteFolder();
+        const onSelectClick = () => this.handleFolderSelect( selectedBrowser );
+        const cancelSubmit = e => e.preventDefault();
         return id
             ?
             <div className="selected-folder" key="selected-folder">
 
-                <div>{path}</div>
-                <h2>{name}</h2>
-                {formatted && <p className="last-modified">{formatted}</p>}
-                <form onSubmit={e => e.preventDefault()} className="create-folder">
+                <h2>{path}/&shy;{name}</h2>
+                <form onSubmit={cancelSubmit} className="select-folder">
 
-                    <h3>New folder</h3>
-                    {path}/{name}/<input type="text" onChange={e => this.setState( { folderName: e.target.value } )} value={folderName} placeholder="Folder name" />
-                    <button onClick={() => this.createFolder()}>Create</button>
+                    <h3>Select this folder</h3>
+                    {formatted && <div className="last-modified">Last modified: <span className="value">{formatted}</span></div>}
+                    <button onClick={onSelectClick}>Select</button>
+
+                </form>
+                <form onSubmit={cancelSubmit} className="create-folder">
+
+                    <h3>Create a new folder in this location</h3>
+                    {path}/&shy;{name}/&shy;<input type="text" onChange={onFolderNameChange} value={folderName} placeholder="Folder name" />
+                    <button onClick={onCreateClick}>Create</button>
+
+
+                </form>
+                <form onSubmit={cancelSubmit} className="delete-folder">
+
+                    <h3>Delete this folder</h3>
+                    <div className="path-and-name">{path}/&shy;{name}</div>
+                    <button onClick={onDeleteClick}>Delete</button>
 
                 </form>
 
@@ -173,7 +186,7 @@ class Provider extends Component {
             :
             <div className="selected-folder" key="selected-folder">
 
-                <h2>No folder selected</h2>
+                <h3>No folder selected</h3>
 
             </div>;
 

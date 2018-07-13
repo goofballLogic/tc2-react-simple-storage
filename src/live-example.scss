@@ -91,8 +91,6 @@ article.live-example {
         overflow: hidden;
         header {
 
-            padding: 10px 0;
-            border-bottom: solid 0.1px black;
             h2 {
 
                 margin: 0;
@@ -143,6 +141,7 @@ article.live-example {
 
                 grid-column: 1 / 3;
                 grid-row: 1 / 2;
+                padding: 10px 0;
 
             }
             .folder-list-folder {
@@ -214,29 +213,48 @@ article.live-example {
             }
             .folder-browsers {
 
-                grid-column: 2 / 3;
+                grid-column: 1 / 2;
                 grid-row: 2 / 3;
                 display: flex;
                 flex-direction: column;
-                padding-left: 20px;
+                padding-right: 10px;
                 overflow: auto;
 
             }
             .selected-folder {
 
-                grid-column: 1 / 2;
+                padding: 0 10px;
+                grid-column: 2 / 3;
                 grid-row: 2 / 3;
-                background-color: #F7F7F7;
-                padding: 20px;
                 overflow: auto;
-                h2 {
+                line-height: 1.5;
+                h2, h3 {
 
-                    font-size: 20pt;
+                    margin: 0;
 
                 }
-                .create-folder {
+                h2 {
 
-                    margin-top: 50px;
+                    padding: 10px;
+                    background-color: #DDD;
+                }
+                .select-folder,
+                .create-folder,
+                .delete-folder {
+
+                    background-color: #EEE;
+                    padding: 20px;
+                    margin: 10px 0;
+                    border-radius: 5px;
+
+                }
+                .delete-folder {
+
+                    .path-and-name {
+
+                        display: none;
+
+                    }
 
                 }
 
