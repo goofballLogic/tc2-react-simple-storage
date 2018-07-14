@@ -194,19 +194,35 @@ ${media}
 
 `;
 
-export async function uploadAsJSON( browseList, filename, obj ) {
+export async function uploadAsJSON( browseList, filename, obj, fileId ) {
 
     const json = JSON.stringify( obj );
     const gapi = await loadGoogleAPI();
-    const path = "/upload/drive/v3/files";
-    const method = "POST";
+    if ( !fileId ) {
+
+        // attempt to look up id
+        const found = await findFile( browseList, filename );
+        if ( found ) fileId = found.id;
+
+    }
+    const path = `/upload/drive/v3/files${fileId ? `/${fileId}` : ""}`;
+    const method = fileId ? "PATCH" : "POST";
     const params = { "uploadType": "multipart" };
     const metadata = {
 
         name: filename,
-        parents: [ browseList.current.id ]
+        mimeType: "application/json",
 
     };
+    if ( fileId ) {
+
+        metadata.addParents = [ browseList.current.id ];
+
+    } else {
+
+        metadata.parents = [ browseList.current.id ];
+
+    }
     const boundary = `tc2-react-simple-storage-${Date.now()}`;
     const body = createMultipartRelatedBody( metadata, "application/json", json, boundary );
     const headers = {
@@ -219,7 +235,7 @@ export async function uploadAsJSON( browseList, filename, obj ) {
 
 }
 
-export async function downloadParsedJSON( browseList, filename ) {
+async function findFile( browseList, filename ) {
 
     const gapi = await loadGoogleAPI();
     const findResponse = await gapi.client.drive.files.list( {
@@ -235,10 +251,18 @@ export async function downloadParsedJSON( browseList, filename ) {
     } );
     ensureSuccessStatus( findResponse, `Searching for ${filename}` );
     const { files } = findResponse.result;
-    if ( !files.length ) return null;
+    return files[ 0 ];
+
+}
+
+export async function downloadParsedJSON( browseList, filename ) {
+
+    const gapi = await loadGoogleAPI();
+    const found = await findFile( browseList, filename );
+    if ( !found ) return null;
     const getResponse = await gapi.client.drive.files.get( {
 
-        fileId: files[ 0 ].id,
+        fileId: found.id,
         alt: "media"
 
     } );
