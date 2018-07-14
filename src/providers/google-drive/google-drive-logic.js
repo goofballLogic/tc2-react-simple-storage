@@ -171,3 +171,78 @@ export async function deleteFolder( browseList ) {
     return response.result.id;
 
 }
+
+const createMultipartRelatedBody = (
+
+    metadata,
+    mediaContentType,
+    media,
+    boundary
+
+) => `
+
+--${boundary}
+Content-Type: application/json; charset=UTF-8
+
+${JSON.stringify( metadata )}
+
+--${boundary}
+Content-Type: ${mediaContentType}
+
+${media}
+--${boundary}--
+
+`;
+
+export async function uploadAsJSON( browseList, filename, obj ) {
+
+    const json = JSON.stringify( obj );
+    const gapi = await loadGoogleAPI();
+    const path = "/upload/drive/v3/files";
+    const method = "POST";
+    const params = { "uploadType": "multipart" };
+    const metadata = {
+
+        name: filename,
+        parents: [ browseList.current.id ]
+
+    };
+    const boundary = `tc2-react-simple-storage-${Date.now()}`;
+    const body = createMultipartRelatedBody( metadata, "application/json", json, boundary );
+    const headers = {
+
+        "content-type": `multipart/related; boundary=${boundary}`
+
+    };
+    const uploadResponse = await gapi.client.request( { path, method, params, headers, body } );
+    ensureSuccessStatus( uploadResponse, `Uploading ${filename}` );
+
+}
+
+export async function downloadParsedJSON( browseList, filename ) {
+
+    const gapi = await loadGoogleAPI();
+    const findResponse = await gapi.client.drive.files.list( {
+
+        pageSize: 1,
+        q: [
+            `"${browseList.current.id}" in parents`,
+            `name = "${filename}"`,
+            "trashed = false"
+        ].join( " and " ),
+        fields: 'files(id)'
+
+    } );
+    ensureSuccessStatus( findResponse, `Searching for ${filename}` );
+    const { files } = findResponse.result;
+    if ( !files.length ) return null;
+    const getResponse = await gapi.client.drive.files.get( {
+
+        fileId: files[ 0 ].id,
+        alt: "media"
+
+    } );
+    ensureSuccessStatus( getResponse, `Fetching ${filename}` );
+    return getResponse.result;
+
+}

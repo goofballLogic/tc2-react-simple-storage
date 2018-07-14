@@ -7,6 +7,11 @@ import SampleDataForm from "./SampleDataForm";
 import ErrorBoundary from "./ErrorBoundary";
 import { StorageStatus, Saving } from "./";
 
+const indexTemplate = {
+
+    "version": "live-example"
+
+};
 class LiveExample extends Component {
 
     constructor() {
@@ -24,21 +29,22 @@ class LiveExample extends Component {
 
     }
 
-    handleContextChange( saveContext ) {
+    async handleContextChange( saveContext ) {
 
         const { saveNeeded } = this.state;
-        if ( saveContext.connected ) {
+        const { provider, connected, folderBrowser } = saveContext;
+        if ( connected ) {
 
             this.savingDialog.close();
             this.setState( { saveNeeded: undefined } );
 
-        } else if ( saveContext.folderBrowser ) {
+        } else if ( folderBrowser ) {
 
-            saveContext.provider.fetch( saveContext.folderBrowser, "_index.json" ).then( content => {
-
-console.log( content );
-
-            } );
+            const content = await provider.downloadParsedJSON( folderBrowser, "_index.json" );
+            const newContent = content || JSON.parse( JSON.stringify( indexTemplate ) );
+            newContent.lastAccessed = (new Date()).toISOString();
+            newContent.created = newContent.created || newContent.lastAccessed;
+            await provider.uploadAsJSON( folderBrowser, "_index.json", newContent );
 
         }
         this.setState( { saveContext } );
