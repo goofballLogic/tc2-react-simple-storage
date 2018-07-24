@@ -1,5 +1,5 @@
 {
-  "name": "workspace",
+  "name": "tc2-react-simple-storage",
   "version": "0.0.1",
   "description": "Simple data storage with react components",
   "main": "dist/bundle.js",
@@ -29,6 +29,7 @@
     "babel-preset-react": "^6.24.1",
     "css-loader": "^0.28.11",
     "date-fns": "^1.29.0",
+    "memoize-one": "^4.0.0",
     "node-sass": "^4.9.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",

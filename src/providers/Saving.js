@@ -7,7 +7,8 @@ class Saving extends Component {
     handleChoose( chosenContext ) {
 
         const { context, onContextChange } = this.props;
-        onContextChange( { ...context, ...chosenContext } );
+        const newContext = { ...context, ...chosenContext };
+        onContextChange( newContext );
 
     }
 
@@ -26,7 +27,7 @@ class Saving extends Component {
                 {Provider && <div className="provider-name">
 
                     <span>{provider.name}</span>
-                    <button onClick={() => this.handleChoose( null )}>Deselect</button>
+                    <button onClick={() => this.handleChoose( { provider: undefined } )}>Deselect</button>
 
                 </div>}
 

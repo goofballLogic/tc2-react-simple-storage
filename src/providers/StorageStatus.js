@@ -1,6 +1,6 @@
 import React from "react";
 
-const StorageStatus = ( { context = {} } ) => console.log( context ) || <article className="storage-status">
+const StorageStatus = ( { context = {} } ) => <article className="storage-status">
 
     <span>Storage:</span>
     <span className={`connection ${context.connected ? "" : "dis"}connected` }>
@@ -8,9 +8,14 @@ const StorageStatus = ( { context = {} } ) => console.log( context ) || <article
         {context.connected ? "Connected" : "Not connected"}
 
     </span>
-    {context.provider && <span>
+    {context.provider && <span className="provider-name">
 
         {context.provider.name }
+
+    </span>}
+    {context.connected && context.selectedFolder && <span className="selected-folder">
+
+        {context.selectedFolder.path().join( "/" )}
 
     </span>}
 

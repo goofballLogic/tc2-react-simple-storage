@@ -37,6 +37,7 @@ class SampleDataForm extends Component {
         const { data } = this.state;
         return <form className="sample-data-form" onSubmit={e => this.handleSubmit( e )}>
 
+            <h3>Today's thoughts</h3>
             <label>
 
                 <span className="label-text">Name</span>

@@ -5,13 +5,25 @@ import "./live-example.scss";
 
 import SampleDataForm from "./SampleDataForm";
 import ErrorBoundary from "./ErrorBoundary";
-import { StorageStatus, Saving } from "./";
+import { StorageStatus, Saving, FileListing } from "./";
 
-const indexTemplate = {
+const APP_ID = "live-example-1531673864527";
 
-    "version": "live-example"
+const indexTemplate = ( now ) => ( {
 
-};
+    owner: APP_ID,
+    version: "0.1",
+    created: now.toISOString()
+
+} );
+
+async function save( data, { provider, selectedFolder } ) {
+
+    const filename = `${(new Date()).toISOString().slice( 0, 10 )}.json`;
+    await provider.uploadAsJSON( selectedFolder, filename, data );
+    alert( "Saved" );
+
+}
 class LiveExample extends Component {
 
     constructor() {
@@ -21,33 +33,56 @@ class LiveExample extends Component {
 
     }
 
-    handleSave( saveNeeded ) {
+    async handleSave( data ) {
 
-        this.savingDialog.showModal();
-        setTimeout( () => this.savingDialog.querySelector( "button" ).focus(), 100 );
-        this.setState( { saveNeeded } );
+        const { saveContext } = this.state;
+        if ( saveContext && saveContext.connected ) {
+
+            await save( data, saveContext );
+
+        } else {
+
+            this.savingDialog.showModal();
+            setTimeout( () => this.savingDialog.querySelector( "button" ).focus(), 100 );
+            this.setState( { saveNeeded: data } );
+
+        }
 
     }
 
     async handleContextChange( saveContext ) {
 
         const { saveNeeded } = this.state;
-        const { provider, connected, folderBrowser } = saveContext;
-        if ( connected ) {
+        const { provider, connected, selectedFolder } = saveContext;
+        this.setState( { saveContext } );
 
-            this.savingDialog.close();
-            this.setState( { saveNeeded: undefined } );
+        if ( selectedFolder ) {
 
-        } else if ( folderBrowser ) {
+            if ( !connected ) {
 
-            const content = await provider.downloadParsedJSON( folderBrowser, "_index.json" );
-            const newContent = content || JSON.parse( JSON.stringify( indexTemplate ) );
-            newContent.lastAccessed = (new Date()).toISOString();
-            newContent.created = newContent.created || newContent.lastAccessed;
-            await provider.uploadAsJSON( folderBrowser, "_index.json", newContent );
+                const content = await provider.downloadParsedJSON( selectedFolder, "_index.json" );
+                if( content && content.owner !== APP_ID ) {
+
+                    alert( `Sorry, that folder is being used by something else (${content.owner ? content.owner : "Unknown"})` );
+                    this.setState( { selectedFolder: undefined } );
+                    return;
+
+                }
+                const now = new Date();
+                const newContent = content || indexTemplate( now );
+                newContent.lastAccessed = now.toISOString();
+                await provider.uploadAsJSON( selectedFolder, "_index.json", newContent );
+                this.setState( { saveContext: { ...saveContext, connected: true } } );
+                this.savingDialog.close();
+
+            }
+            if ( saveNeeded ) {
+
+                await save( saveNeeded, saveContext );
+
+            }
 
         }
-        this.setState( { saveContext } );
 
     }
 
@@ -75,6 +110,7 @@ class LiveExample extends Component {
                         onCancel={() => this.handleCancelSaving()} />}
                 </dialog>
                 <SampleDataForm onSave={data => this.handleSave( data )} />
+                <FileListing context={saveContext} />
 
             </ErrorBoundary>
 

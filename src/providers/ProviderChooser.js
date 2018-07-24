@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { queryProviders } from "./providers/messages";
+import { queryProviders } from "./messages";
 
 const noop = () => {};
 

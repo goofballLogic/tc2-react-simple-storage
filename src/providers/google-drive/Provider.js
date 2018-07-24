@@ -8,6 +8,13 @@ const Folder = ( { id, name, icon, onClick } ) => <li>
 
 </li>;
 
+const preventingDefault = fn => e => {
+
+    e.preventDefault();
+    fn();
+
+};
+
 function modifyDate( value, pattern = "dddd, MMMM Qo, YYYY [at] h:mma" ) {
 
     try {
@@ -63,10 +70,10 @@ class Provider extends Component {
 
     }
 
-    handleFolderSelect( folderBrowser ) {
+    handleFolderSelect( selectedFolder ) {
 
         const { onChoose } = this.props;
-        onChoose( { folderBrowser } );
+        onChoose( { selectedFolder } );
 
     }
 
@@ -196,9 +203,9 @@ class Provider extends Component {
         const { name, modified, id } = selectedBrowser.current;
         const formatted = modifyDate( modified );
         const onFolderNameChange = e => this.setState( { folderName: e.target.value } );
-        const onCreateClick = () => this.createFolder();
-        const onDeleteClick = () => setTimeout( () => this.deleteFolder(), 500 );
-        const onSelectClick = () => this.handleFolderSelect( selectedBrowser );
+        const onCreateClick = preventingDefault( () => this.createFolder() );
+        const onDeleteClick = preventingDefault( () => setTimeout( () => this.deleteFolder(), 500 ) );
+        const onSelectClick = preventingDefault( () => this.handleFolderSelect( selectedBrowser ) );
         const cancelSubmit = e => e.preventDefault();
         const isConfirmDelete = confirmDelete === selectedBrowser;
         return id

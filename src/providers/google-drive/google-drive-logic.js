@@ -270,3 +270,21 @@ export async function downloadParsedJSON( browseList, filename ) {
     return getResponse.result;
 
 }
+
+export async function listFiles( browseList ) {
+
+    const gapi = await loadGoogleAPI();
+    const findResponse = await gapi.client.drive.files.list( {
+
+        pageSize: 999,
+        q: [
+            `"${browseList.current.id}" in parents`,
+            "trashed = false"
+        ].join( " and " ),
+        fields: 'files(id, name, mimeType, modifiedTime)'
+
+    } );
+    ensureSuccessStatus( findResponse, `Listing contents of ${browseList}` );
+    return findResponse.result.files;
+
+}
