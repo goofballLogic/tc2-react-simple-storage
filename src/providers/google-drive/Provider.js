@@ -15,6 +15,39 @@ const preventingDefault = fn => e => {
 
 };
 
+function tryStringify( err ) {
+
+    try {
+
+        return JSON.stringify( err );
+
+    } catch( _ ) {
+
+        return null;
+
+    }
+
+}
+
+function describeError( err ) {
+
+    if ( err ) {
+
+        const { result } = err;
+        if ( result && result.error ) {
+
+            if ( result.error.message ) return result.error.message;
+            const errorString = tryStringify( result.error );
+            if ( errorString ) return errorString;
+
+        }
+        if ( err.stack ) return err.stack;
+
+    }
+    return tryStringify( err ) || "Unknown error";
+
+}
+
 function modifyDate( value, pattern = "dddd, MMMM Qo, YYYY [at] h:mma" ) {
 
     try {
@@ -255,8 +288,8 @@ class Provider extends Component {
     renderError() {
 
         const { err } = this.state;
-        const { result } = err;
-        const message = ( ( result && result.error ) ? result.error.message : err.message ) || `Unknown error: ${err}`;
+        console.warn( err );
+        const message = describeError( err );
         const clickOk = () => this.setState( { err: undefined } );
         return <div className="error">
 
