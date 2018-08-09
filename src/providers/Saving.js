@@ -12,6 +12,12 @@ class Saving extends Component {
 
     }
 
+    clearProvider() {
+
+        this.handleChoose( { provider: undefined, user: undefined } );
+
+    }
+
     render() {
 
         const { context, onCancel } = this.props;
@@ -27,7 +33,7 @@ class Saving extends Component {
                 {Provider && <div className="provider-name">
 
                     <span>{provider.name}</span>
-                    <button onClick={() => this.handleChoose( { provider: undefined } )}>Deselect</button>
+                    <button onClick={() => this.clearProvider()}>Deselect</button>
 
                 </div>}
 
@@ -35,7 +41,7 @@ class Saving extends Component {
             { Provider
                 ? <div className={`selected-provider ${provider.className}`}>
 
-                    <Provider {...this.props} provider={provider} onChoose={onChoose} />
+                    <Provider {...this.props} provider={provider} onChoose={onChoose} onCancelProvider={() => this.clearProvider()} />
 
                 </div>
                 : <ProviderChooser {...this.props} provider={provider} onChoose={onChoose} /> }

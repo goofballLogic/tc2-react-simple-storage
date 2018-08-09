@@ -48,6 +48,7 @@ export { initializing };
 
 function buildProfile( gapi ) {
 
+    if ( !gapi.auth2.getAuthInstance().isSignedIn.get() ) return null;
     const profile = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
     if ( !profile ) { return profile; }
     const name = profile.getName();
@@ -57,9 +58,18 @@ function buildProfile( gapi ) {
 
 }
 
+export async function deauthorize() {
+
+    const auth = ( await loadGoogleAPI() ).auth2.getAuthInstance();
+    auth.signOut();
+    auth.disconnect();
+
+}
+
 export async function authorize() {
 
     const gapi = await loadGoogleAPI();
+
     await new Promise( resolve => gapi.load( "client:auth2", resolve ) );
     await gapi.client.init( {
 
@@ -108,16 +118,22 @@ export async function listFolders() {
 
     const gapi = await loadGoogleAPI();
     const filesClient = gapi.client.drive.files;
+    const listOptions = {
+
+        pageSize: 999,
+        q: `mimeType='${FOLDER_MIME_TYPE}' and trashed = false`,
+        fields: 'files(id, name, parents, iconLink, modifiedTime)'
+
+    };
+    const getOptions = {
+
+        fileId: "root"
+
+    };
     const [ foldersResponse, rootResponse ] = await Promise.all( [
 
-        filesClient.list( {
-
-            pageSize: 999,
-            q: `mimeType='${FOLDER_MIME_TYPE}' and trashed = false`,
-            fields: 'files(id, name, parents, iconLink, modifiedTime)'
-
-        } ),
-        filesClient.get( { fileId: "root" } )
+        filesClient.list( listOptions ),
+        filesClient.get( getOptions )
 
     ] );
     ensureSuccessStatus( foldersResponse, "Querying for all folders" );

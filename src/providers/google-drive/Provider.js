@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { format, parse } from "date-fns";
-import { initializing, listFolders, authorize, createFolder, deleteFolder } from "./google-drive-logic";
+import { initializing, listFolders, authorize, createFolder, deleteFolder, deauthorize } from "./google-drive-logic";
 
 const Folder = ( { id, name, icon, onClick } ) => <li>
 
@@ -87,7 +87,17 @@ class Provider extends Component {
         } );
         const { onChoose } = this.props;
         const { selectedBrowser } = this.state;
-        const user = await authorize();
+        let user;
+        try {
+
+            user = await authorize();
+
+        } catch( err ) {
+
+            this.props.onCancelProvider();
+            return;
+
+        }
         onChoose( { user } );
         folderPath = folderPath || ( selectedBrowser ? selectedBrowser.pathIds() : [] );
         let rootBrowser = await listFolders();
@@ -97,7 +107,8 @@ class Provider extends Component {
 
             isLoading: undefined,
             selectedBrowser: newSelectedBrowser,
-            folderBrowsers: newFolderBrowsers
+            folderBrowsers: newFolderBrowsers,
+            user
 
         } );
 
@@ -193,14 +204,35 @@ class Provider extends Component {
 
     }
 
+    async logout() {
+
+        await deauthorize();
+        this.props.onCancelProvider();
+
+    }
+
+    renderLogout() {
+
+        const { user } = this.state;
+        if ( !user ) return null;
+        return <span>
+
+            Logged in as: {user.email}
+            <button onClick={ () => this.logout() }>Log out</button>
+
+        </span>;
+
+    }
+
     renderControls() {
 
-        const { isLoading } = this.state;
+        const { isLoading, user } = this.state;
         const onRefreshFoldersClick = () => this.listFolders();
         const isRefreshDisabled = isLoading;
         return <div key="controls" className="controls">
 
             <button className="refreshFolders" onClick={onRefreshFoldersClick} disabled={isRefreshDisabled}>Refresh folders</button>
+            {this.renderLogout()}
 
         </div>;
 
@@ -281,7 +313,11 @@ class Provider extends Component {
 
     renderLoading() {
 
-        return <div className="folder-list-loading" key="folder-list-loading">loading...</div>;
+        return <div className="folder-list-loading" key="folder-list-loading">
+
+            loading...
+
+        </div>;
 
     }
 
@@ -291,7 +327,7 @@ class Provider extends Component {
         console.warn( err );
         const message = describeError( err );
         const clickOk = () => this.setState( { err: undefined } );
-        return <div className="error">
+        return <div className="error" key="error">
 
             <h3>An error occurred</h3>
             <p>{message}</p>
