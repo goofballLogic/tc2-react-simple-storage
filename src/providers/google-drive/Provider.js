@@ -73,10 +73,17 @@ class Provider extends Component {
         initializing
             .then( () => this.setState( { initialized: true } ) )
             .then( () => this.listFolders() )
-            .catch( err => this.setState( { err } ) );
+            .catch( err => this.handleError( err ) );
 
     }
 
+    handleError( err ) {
+
+        const { onError } = this.props;
+        const isErrorHandled = onError && onError( err );
+        if ( !isErrorHandled ) this.setState( { err } );
+
+    }
     async listFolders( folderPath ) {
 
         this.setState( {
@@ -94,7 +101,7 @@ class Provider extends Component {
 
         } catch( err ) {
 
-            this.props.onCancelProvider();
+            this.handleError( err );
             return;
 
         }
@@ -168,7 +175,8 @@ class Provider extends Component {
 
         } catch( err ) {
 
-            this.setState( { isLoading: undefined, err } );
+            this.setState( { isLoading: undefined } );
+            this.handleError( err );
 
         }
 
@@ -198,7 +206,8 @@ class Provider extends Component {
 
         } catch( err ) {
 
-            this.setState( { isLoading: undefined, err } );
+            this.setState( { isLoading: undefined } );
+            this.handleError( err );
 
         }
 
@@ -249,7 +258,11 @@ class Provider extends Component {
                 <button className="folder-list-folder" onClick={() => this.select( folderBrowser )}>{folderBrowser.current.name || "Home"}</button>
                 <ul className="folder-list">
 
-                    {( folderBrowser.list || [] ).map( item => <Folder key={item.id} {...item } onClick={() => this.go( folderBrowser, item )} /> )}
+                    {( folderBrowser.list || [] ).map( item =>
+
+                        <Folder key={item.id} {...item } onClick={() => this.go( folderBrowser, item )} />
+
+                    )}
 
                 </ul>
 
