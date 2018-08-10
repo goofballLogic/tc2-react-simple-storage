@@ -20,7 +20,7 @@ class Saving extends Component {
 
     render() {
 
-        const { context, onCancel } = this.props;
+        const { context, onCancel, onError } = this.props;
         const { provider } = context || {};
         const { Provider } = provider || {};
         const onChoose = context => this.handleChoose( context );
@@ -41,7 +41,10 @@ class Saving extends Component {
             { Provider
                 ? <div className={`selected-provider ${provider.className}`}>
 
-                    <Provider {...this.props} provider={provider} onChoose={onChoose} onCancelProvider={() => this.clearProvider()} />
+                    <Provider {...this.props} provider={provider}
+                        onChoose={onChoose}
+                        onCancelProvider={() => this.clearProvider()}
+                        onError={err => onError( err )}  />
 
                 </div>
                 : <ProviderChooser {...this.props} provider={provider} onChoose={onChoose} /> }
