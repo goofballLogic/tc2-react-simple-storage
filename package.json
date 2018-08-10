@@ -1,6 +1,6 @@
 {
   "name": "tc2-react-simple-storage",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Simple data storage with react components",
   "main": "dist/bundle.js",
   "directories": {
