@@ -240,7 +240,7 @@ class Provider extends Component {
         const isRefreshDisabled = isLoading;
         return <div key="controls" className="controls">
 
-            <button className="refreshFolders" onClick={onRefreshFoldersClick} disabled={isRefreshDisabled}>Refresh folders</button>
+            <button className="refresh-folders" onClick={onRefreshFoldersClick} disabled={isRefreshDisabled}>Refresh folders</button>
             {this.renderLogout()}
 
         </div>;

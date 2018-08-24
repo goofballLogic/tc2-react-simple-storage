@@ -29,7 +29,7 @@ class Saving extends Component {
             <header>
 
                 <h2>Saving</h2>
-                <button onClick={onCancel}>Cancel</button>
+                <button className="cancel" onClick={onCancel}>Cancel</button>
                 {Provider && <div className="provider-name">
 
                     <span>{provider.name}</span>

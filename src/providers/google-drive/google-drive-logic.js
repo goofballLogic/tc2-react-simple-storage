@@ -287,7 +287,7 @@ export async function downloadParsedJSON( browseList, filename ) {
 
 }
 
-export async function listFiles( browseList ) {
+export async function listFiles( browseList = { current: { id: "root" } } ) {
 
     const gapi = await loadGoogleAPI();
     const findResponse = await gapi.client.drive.files.list( {
