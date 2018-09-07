@@ -304,3 +304,11 @@ export async function listFiles( browseList = { current: { id: "root" } } ) {
     return findResponse.result.files;
 
 }
+
+export async function refresh( browseList ) {
+
+    if ( !browseList ) throw new Error( "Missing argument: browseList" );
+    browseList.list = await listFiles( browseList );
+    return browseList;
+
+}
