@@ -287,16 +287,18 @@ export async function downloadParsedJSON( browseList, filename ) {
 
 }
 
-export async function listFiles( browseList = { current: { id: "root" } } ) {
+export async function listFiles( browseList = { current: { id: "root" } }, mimeType ) {
 
     const gapi = await loadGoogleAPI();
+    const query = [
+        `"${browseList.current.id}" in parents`,
+        "trashed = false"
+    ];
+    if ( mimeType ) query.push( `mimeType='${mimeType}'` );
     const findResponse = await gapi.client.drive.files.list( {
 
         pageSize: 999,
-        q: [
-            `"${browseList.current.id}" in parents`,
-            "trashed = false"
-        ].join( " and " ),
+        q: query.join( " and " ),
         fields: 'files(id, name, mimeType, modifiedTime)'
 
     } );
@@ -308,7 +310,7 @@ export async function listFiles( browseList = { current: { id: "root" } } ) {
 export async function refresh( browseList ) {
 
     if ( !browseList ) throw new Error( "Missing argument: browseList" );
-    browseList.list = await listFiles( browseList );
+    browseList.list = await listFiles( browseList, FOLDER_MIME_TYPE );
     return browseList;
 
 }
