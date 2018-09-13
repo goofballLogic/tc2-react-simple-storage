@@ -73,8 +73,8 @@ export async function authorize() {
     await new Promise( resolve => gapi.load( "client:auth2", resolve ) );
     await gapi.client.init( {
 
-        apiKey: "AIzaSyBA5vt92PND_bNslesdICGLy6qv3Q8c8BA",
-        clientId: "703171357255-6qbavnijqqdft8ckvq85gtane6c3d82u.apps.googleusercontent.com",
+        apiKey: window.apiKey || "AIzaSyBA5vt92PND_bNslesdICGLy6qv3Q8c8BA",
+        clientId: window.clientId || "703171357255-6qbavnijqqdft8ckvq85gtane6c3d82u.apps.googleusercontent.com",
         discoveryDocs: [ "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest" ],
         scope: "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.metadata.readonly"
 
@@ -104,10 +104,10 @@ function asFile( googleFile ) {
 
 }
 
-function ensureSuccessStatus( response, description ) {
+function ensureSuccessStatus( response, description, maybeOptions ) {
 
     if ( response.status === 200 ) return;
-    console.error( response, description );
+    console.error( response, description, maybeOptions || "options not specified" );
     throw new Error( `Unexpected response status: ${response.status} ${description ? `(${description})` : ""}` );
 
 }
@@ -210,6 +210,17 @@ ${media}
 
 `;
 
+function reportError( message, err, maybeOptions ) {
+    
+    throw new Error( 
+        
+        "Error ${message}: ${err && err.stack ? err.stack : err}"
+        + maybeOptions ? `\n\n${JSON.stringify( maybeOptions, null, 3 )}` : ""
+        
+    );
+
+}
+
 export async function uploadAsJSON( browseList, filename, obj, fileId ) {
 
     const json = JSON.stringify( obj );
@@ -246,15 +257,24 @@ export async function uploadAsJSON( browseList, filename, obj, fileId ) {
         "content-type": `multipart/related; boundary=${boundary}`
 
     };
-    const uploadResponse = await gapi.client.request( { path, method, params, headers, body } );
-    ensureSuccessStatus( uploadResponse, `Uploading ${filename}` );
+    const options = { path, method, params, headers, body };
+    try {
+
+        const uploadResponse = await gapi.client.request( options );
+        ensureSuccessStatus( uploadResponse, `Uploading ${filename}`, options );
+        
+    } catch( err ) {
+        
+        reportError( "uploading JSON", err, options );
+        
+    }
 
 }
 
 async function findFile( browseList, filename ) {
 
-    const gapi = await loadGoogleAPI();
-    const findResponse = await gapi.client.drive.files.list( {
+    if ( !browseList.current ) throw new Error( "No current folder supplied" );
+    const options = {
 
         pageSize: 1,
         q: [
@@ -264,10 +284,20 @@ async function findFile( browseList, filename ) {
         ].join( " and " ),
         fields: 'files(id)'
 
-    } );
-    ensureSuccessStatus( findResponse, `Searching for ${filename}` );
-    const { files } = findResponse.result;
-    return files[ 0 ];
+    };
+    try {
+
+        const gapi = await loadGoogleAPI();
+        const findResponse = await gapi.client.drive.files.list( options );
+        ensureSuccessStatus( findResponse, `Searching for ${filename}` );
+        const { files } = findResponse.result;
+        return files[ 0 ];
+        
+    } catch( err ) {
+        
+        reportError( "finding file", err, options );
+        
+    }
 
 }
 
