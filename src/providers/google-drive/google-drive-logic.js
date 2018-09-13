@@ -69,12 +69,17 @@ export async function deauthorize() {
 export async function authorize() {
 
     const gapi = await loadGoogleAPI();
-
+    const { apiKey, clientId } = window.env || { 
+        
+        apiKey: "AIzaSyBA5vt92PND_bNslesdICGLy6qv3Q8c8BA",
+        clientId: "703171357255-6qbavnijqqdft8ckvq85gtane6c3d82u.apps.googleusercontent.com"
+        
+    };
     await new Promise( resolve => gapi.load( "client:auth2", resolve ) );
     await gapi.client.init( {
 
-        apiKey: window.apiKey || "AIzaSyBA5vt92PND_bNslesdICGLy6qv3Q8c8BA",
-        clientId: window.clientId || "703171357255-6qbavnijqqdft8ckvq85gtane6c3d82u.apps.googleusercontent.com",
+        apiKey,
+        clientId,
         discoveryDocs: [ "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest" ],
         scope: "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.metadata.readonly"
 
